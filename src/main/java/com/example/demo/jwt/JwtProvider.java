@@ -3,6 +3,7 @@ package com.example.demo.jwt;
 import java.util.Date;
 import java.util.logging.Logger;
 
+
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -19,17 +20,34 @@ public class JwtProvider {
 	private static Logger log = Logger.getLogger(JwtProvider.class.getSimpleName());
 
 	@Value("${security.secretKey}")
-	private String secretKey;
+	private  String secretKey = "chiavesupersegretissima";
 
 	@Value("${security.prefix}")
-	private String prefix;
+	private String prefix = "Bearer ";
 
 	@Value("${security.param}")
-	private String param;
-
+	private String param = "Authorization";
+	
+	
+	/**
+	 * Default constructor
+	 * 
+	 * */
+	public JwtProvider() {
+		super();
+		log.info("constructor JwtProvider() - START");
+		log.info("constructor JwtProvider() - DEBUG: \n\n\tstate: {\n" + 
+											 "\t   secretKey = " + this.secretKey +
+											 "\n\t   prefix = "    + this.prefix +
+											 "\n\t   param = " + this.param +
+											" \n\t}\n\n");
+		log.info("constructor JwtProvider() - END");
+	}
+	
 	/**
 	 * Method for generate JSON WEB TOKEN (JWT)
 	 * 
+	 * @param void
 	 * @return String - which reprents JWT
 	 * 
 	 */
@@ -54,24 +72,82 @@ public class JwtProvider {
 	 * 
 	 * @param String - JWT that arrived from request-header in the filed called
 	 *               'Authorization'
-	 * @return
+	 *               
+	 * @return DecodedJWT -  that represents the decode of JWT
 	 */
 	public DecodedJWT decodeJwt(String jwtString) {
 		log.info("method decodeJwt(String jwtString) - START");
-		log.info("method decodeJwt(String jwtString) - PARAM: jwtString="+jwtString);
+		log.info("method decodeJwt(String jwtString) - PARAM: jwtString=" + jwtString);
 
-		// add a prefix on JWT string and then delete empty space at first and end it.
+		// replace the prefix in JWT with empty space: transform  "Bearer " ---in---> ""
 		jwtString = jwtString.replace(this.prefix, "").trim();
-		log.info("method decodeJwt(String jwtString) - DEBUG: jwtString="+jwtString);
+		log.info("method decodeJwt(String jwtString) - DEBUG: jwtString=" + jwtString);
 
-		// set algorithm to encrypt and specif a secretkey to encrypt
-		Verification verification = JWT.require((Algorithm.HMAC256(this.secretKey)));
+		// set algorithm to encrypt and specific a secretkey to encrypt
+		Verification verification = JWT.require( Algorithm.HMAC256(this.secretKey) );
 		
 		JWTVerifier jwtVerifier = verification.build();
 		DecodedJWT jwtDeocoded = jwtVerifier.verify(jwtString);
-		log.info("method decodeJwt(String jwtString) - DEBUG: jwtDeocoded.subject="+jwtDeocoded.getSubject());
+		log.info("method decodeJwt(String jwtString) - DEBUG: jwtDeocoded.subject=" + jwtDeocoded.getSubject());
+		log.info("method decodeJwt(String jwtString) - RETURNED: jwtDeocoded =" + jwtDeocoded);
 
 		log.info("method decodeJwt(String jwtString) - END");
 		return jwtDeocoded;
 	}
+
+	
+
+	
+	
+	
+	
+	
+	
+	
+   /*
+	* ------------------------------------ getter and setter ------------------------------------
+	* 
+	*/
+	/**
+	 * @return the secretKey
+	 */
+	public String getSecretKey() {
+		return secretKey;
+	}
+
+	/**
+	 * @param secretKey the secretKey to set
+	 */
+	public void setSecretKey(String secretKey) {
+		this.secretKey = secretKey;
+	}
+
+	/**
+	 * @return the prefix
+	 */
+	public String getPrefix() {
+		return prefix;
+	}
+
+	/**
+	 * @param prefix the prefix to set
+	 */
+	public void setPrefix(String prefix) {
+		this.prefix = prefix;
+	}
+
+	/**
+	 * @return the param
+	 */
+	public String getParam() {
+		return param;
+	}
+
+	/**
+	 * @param param the param to set
+	 */
+	public void setParam(String param) {
+		this.param = param;
+	}
+	
 }
